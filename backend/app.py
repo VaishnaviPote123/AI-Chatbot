@@ -1,11 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
-import random
-import requests
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os, random
 
 app = FastAPI()
+
+# Serve frontend
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+@app.get("/")
+def read_index():
+    return FileResponse(os.path.join("frontend", "index.html"))
 
 # Allow frontend requests
 app.add_middleware(
@@ -31,8 +38,8 @@ class ReminderRequest(BaseModel):
     frequency: str
 
 # ---------------- In-Memory DB ----------------
-users = {}           # username -> {"total_carbon_saved": float, "streak": int}
-reminders = {}       # username -> list of {"habit": str, "frequency": str, "enabled": True}
+users = {}  # username -> {"total_carbon_saved": float, "streak": int}
+reminders = {}  # username -> list of {"habit": str, "frequency": str, "enabled": True}
 challenges = [
     {"title": "Use public transport", "description": "Take bus/train instead of car today", "carbon_value": 2.5},
     {"title": "Plant a tree", "description": "Plant a tree in your area", "carbon_value": 5},
@@ -42,21 +49,8 @@ challenges = [
 # ---------------- Chat Endpoint ----------------
 @app.post("/chat")
 def chat(req: ChatRequest):
-    # Call Groq API
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-    if not GROQ_API_KEY:
-        return {"reply": "Groq API key not set!"}
-
-    try:
-        response = requests.post(
-            "https://api.groq.ai/v1/query",
-            headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
-            json={"query": req.message}
-        )
-        reply_text = response.json().get("result", "I couldn't understand that.")
-    except Exception as e:
-        reply_text = "Server error. Try again later."
-
+    # Placeholder for Groq API (replace with actual Groq client)
+    reply_text = f"Echo: {req.message}"
     return {"reply": reply_text}
 
 # ---------------- Carbon Tracker ----------------
@@ -70,14 +64,12 @@ def log_carbon(req: CarbonRequest):
 
 @app.get("/user/{username}")
 def get_user(username: str):
-    u = users.get(username, {"total_carbon_saved": 0, "streak": 0})
-    return u
+    return users.get(username, {"total_carbon_saved": 0, "streak": 0})
 
 @app.get("/leaderboard")
 def leaderboard():
     sorted_users = sorted(users.items(), key=lambda x: x[1]["total_carbon_saved"], reverse=True)
-    result = [{"username": u[0], "total_carbon_saved": u[1]["total_carbon_saved"]} for u in sorted_users]
-    return result
+    return [{"username": u[0], "total_carbon_saved": u[1]["total_carbon_saved"]} for u in sorted_users]
 
 # ---------------- Daily Challenge ----------------
 @app.get("/challenge/daily")
