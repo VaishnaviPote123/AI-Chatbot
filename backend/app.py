@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from groq import Groq
 import os
@@ -9,43 +8,33 @@ import random
 from datetime import date
 
 # -------------------------------
-# Load environment variables
+# Load env
 # -------------------------------
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-# Initialize Groq client
 client = Groq(api_key=GROQ_API_KEY)
 
 # -------------------------------
-# FastAPI app setup
+# App
 # -------------------------------
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # -------------------------------
-# Serve frontend
+# In-memory DB
 # -------------------------------
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
-# -------------------------------
-# In-memory database
-# -------------------------------
-users = {}      # username -> {"total": 0, "streak": 0, "completed_challenges": set()}
-reminders = []  # list of {"username":..., "habit":..., "frequency":..., "enabled": True}
-
-# Store daily challenge
+users = {}
+reminders = []
 daily_challenge_cache = {"date": None, "challenge": None}
 
 # -------------------------------
-# Pydantic models
+# Models
 # -------------------------------
 class ChatRequest(BaseModel):
     message: str
@@ -62,104 +51,88 @@ class ReminderRequest(BaseModel):
     frequency: str
 
 # -------------------------------
-# Static challenge list
+# Challenges
 # -------------------------------
 challenges = [
-    {"title":"Use Public Transport","description":"Use bus or train today","carbon_value":5},
-    {"title":"Plant a Tree","description":"Plant one tree","carbon_value":10},
-    {"title":"Save Water","description":"Take a short shower","carbon_value":2},
-    {"title":"No Plastic","description":"Avoid plastic today","carbon_value":3}
+    {"title": "Use Public Transport", "description": "Use bus or train today", "carbon_value": 5},
+    {"title": "Plant a Tree", "description": "Plant one tree", "carbon_value": 10},
+    {"title": "Save Water", "description": "Take a short shower", "carbon_value": 2},
+    {"title": "No Plastic", "description": "Avoid plastic today", "carbon_value": 3},
 ]
 
 # -------------------------------
-# Health endpoint
+# Root
 # -------------------------------
-@app.get("/health")
+@app.get("/")
 def home():
-    return {"status": "Eco Coach AI running 🌱"}
+    return {"status": "Eco Coach API running 🌱"}
 
 # -------------------------------
-# Chat endpoint using Groq LLaMA
+# Chat
 # -------------------------------
 @app.post("/chat")
 def chat(req: ChatRequest):
-    prompt = f"You are an eco-friendly lifestyle coach.\nUser asked: {req.message}"
     try:
         completion = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": "You are a helpful sustainability coach."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "You are a helpful eco lifestyle coach."},
+                {"role": "user", "content": req.message}
             ],
             temperature=0.7
         )
         reply = completion.choices[0].message.content
     except Exception:
-        reply = "🌱 Try small steps: reduce waste, save energy, and protect nature!"
+        reply = "🌱 Reduce waste, save energy, protect nature!"
+
     return {"reply": reply, "carbon_saved": 0}
 
 # -------------------------------
-# Daily challenge
+# Daily Challenge
 # -------------------------------
 @app.get("/challenge/daily")
 def daily_challenge():
     today = str(date.today())
-    if daily_challenge_cache["date"] == today and daily_challenge_cache["challenge"]:
-        return daily_challenge_cache["challenge"]
-    challenge = random.choice(challenges)
-    daily_challenge_cache["date"] = today
-    daily_challenge_cache["challenge"] = challenge
-    return challenge
+    if daily_challenge_cache["date"] != today:
+        daily_challenge_cache["date"] = today
+        daily_challenge_cache["challenge"] = random.choice(challenges)
+    return daily_challenge_cache["challenge"]
 
 # -------------------------------
-# Complete challenge
-# -------------------------------
-@app.post("/challenge/complete")
-def complete_challenge(username: str):
-    if username not in users:
-        users[username] = {"total": 0, "streak": 0, "completed_challenges": set()}
-    today = str(date.today())
-    challenge = daily_challenge_cache.get("challenge") or random.choice(challenges)
-    daily_challenge_cache["date"] = today
-    daily_challenge_cache["challenge"] = challenge
-    challenge_id = challenge["title"]
-    if challenge_id in users[username]["completed_challenges"]:
-        return {"message": "You already completed today's challenge!", "carbon_saved": 0}
-    users[username]["completed_challenges"].add(challenge_id)
-    users[username]["total"] += challenge["carbon_value"]
-    users[username]["streak"] += 1
-    return {"message": f"Challenge completed! You saved {challenge['carbon_value']} kg CO2",
-            "carbon_saved": challenge["carbon_value"]}
-
-# -------------------------------
-# Carbon tracker endpoints
+# Carbon Log
 # -------------------------------
 @app.post("/carbon/log")
 def log_carbon(req: CarbonRequest):
     if req.username not in users:
-        users[req.username] = {"total": 0, "streak": 0, "completed_challenges": set()}
+        users[req.username] = {"total": 0, "streak": 0}
+
     users[req.username]["total"] += req.carbon_saved
     users[req.username]["streak"] += 1
-    return {"message": "Logged successfully"}
 
-@app.get("/user/{username}")
-def get_user(username: str):
-    user = users.get(username)
-    if user:
-        return {"username": username, "total_carbon_saved": user["total"], "streak": user["streak"]}
-    return {"username": username, "total_carbon_saved": 0, "streak": 0}
+    return {"message": "Activity logged successfully"}
 
 # -------------------------------
-# Leaderboard endpoint
+# User Stats
+# -------------------------------
+@app.get("/user/{username}")
+def get_user(username: str):
+    user = users.get(username, {"total": 0, "streak": 0})
+    return {
+        "username": username,
+        "total_carbon_saved": user["total"],
+        "streak": user["streak"]
+    }
+
+# -------------------------------
+# Leaderboard
 # -------------------------------
 @app.get("/leaderboard")
 def leaderboard():
-    data = [{"username": u, "total_carbon_saved": v["total"]} for u,v in users.items()]
-    data.sort(key=lambda x: x["total_carbon_saved"], reverse=True)
-    return data
+    data = [{"username": u, "total_carbon_saved": v["total"]} for u, v in users.items()]
+    return sorted(data, key=lambda x: x["total_carbon_saved"], reverse=True)
 
 # -------------------------------
-# Reminders endpoints
+# Reminders
 # -------------------------------
 @app.post("/reminder/add")
 def add_reminder(req: ReminderRequest):

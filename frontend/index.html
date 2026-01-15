@@ -2,369 +2,206 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>🌱 AI Sustainability Chatbot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eco Coach Chatbot 🌱</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body {
-      margin: 0; background: #f4fdf6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px;
+      font-family: Arial, sans-serif;
+      background: #f0f7f4;
+      margin: 0;
+      padding: 0;
     }
-    .app-container {
-      width: 600px; max-width: 95%; background: #ffffff; border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-    }
-    .app-header {
-      background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 20px; border-radius: 16px 16px 0 0;
-      text-align: center; font-size: 20px; font-weight: bold;
-    }
-    .tabs {
-      display: flex; border-bottom: 2px solid #e0e0e0;
-    }
-    .tab-button {
-      flex: 1; padding: 12px; background: #f9fffb; border: none; cursor: pointer;
-      font-weight: bold; color: #333; border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
-    .tab-button.active {
-      background: #e8f5e9; color: #2ecc71; border-bottom-color: #2ecc71;
-    }
-    .tab-button:hover { background: #f0f8f4; }
-    .tab-content {
-      display: none; padding: 20px; flex: 1; max-height: 500px; overflow-y: auto;
-    }
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Chat styles */
-    .chat-messages {
-      height: 300px; overflow-y: auto; background: #f9fffb; margin-bottom: 10px; border-radius: 10px;
-      padding: 10px;
-    }
-    .message { margin-bottom: 10px; padding: 10px 14px; border-radius: 14px; max-width: 85%; font-size: 13px; }
-    .user { background: #2ecc71; color: white; margin-left: auto; width: fit-content; }
-    .bot { background: #e8f5e9; color: #333; width: fit-content; }
-    .chat-input {
-      display: flex; gap: 8px;
-    }
-    .chat-input input {
-      flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; outline: none;
-      font-size: 14px;
-    }
-    .chat-input button {
-      padding: 10px 16px; border-radius: 20px; border: none;
-      background: #2ecc71; color: white; cursor: pointer; font-weight: bold;
-    }
-    .chat-input button:hover { background: #27ae60; }
-
-    /* Challenge styles */
-    .challenge-card {
-      background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px;
-      border-left: 4px solid #2ecc71;
-    }
-    .challenge-title { font-size: 16px; font-weight: bold; color: #2ecc71; }
-    .challenge-desc { font-size: 13px; color: #555; margin: 5px 0; }
-    .challenge-value { font-size: 12px; color: #27ae60; font-weight: bold; }
-    .challenge-btn {
-      background: #2ecc71; color: white; border: none; padding: 8px 12px;
-      border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: bold;
-    }
-    .challenge-btn:hover { background: #27ae60; }
-
-    /* Leaderboard styles */
-    .leaderboard-list {
-      list-style: none; padding: 0; margin: 0;
-    }
-    .leaderboard-item {
-      display: flex; justify-content: space-between; padding: 12px;
-      background: #f9fffb; margin-bottom: 8px; border-radius: 8px;
-      border-left: 3px solid #2ecc71;
-    }
-    .leaderboard-rank { font-weight: bold; color: #2ecc71; min-width: 30px; }
-    .leaderboard-name { flex: 1; margin-left: 10px; font-weight: bold; }
-    .leaderboard-score { color: #27ae60; font-weight: bold; }
-
-    /* Tracker styles */
-    .stat-box {
-      background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px;
+    header {
+      background: #2e7d32;
+      color: white;
+      padding: 15px;
       text-align: center;
+      font-size: 22px;
     }
-    .stat-label { font-size: 12px; color: #666; }
-    .stat-value { font-size: 24px; font-weight: bold; color: #2ecc71; margin-top: 5px; }
-    .log-form {
-      display: flex; flex-direction: column; gap: 10px;
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
     }
-    .log-form input {
-      padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .log-form button {
-      padding: 10px; background: #2ecc71; color: white; border: none;
-      border-radius: 5px; cursor: pointer; font-weight: bold;
+    input, button {
+      padding: 10px;
+      margin-top: 5px;
+      width: 100%;
     }
-    .log-form button:hover { background: #27ae60; }
-
-    h2, h3 { margin-top: 0; color: #333; }
+    button {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #1b5e20;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .chat-box {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .msg-user { color: #1565c0; }
+    .msg-bot { color: #2e7d32; }
   </style>
 </head>
 <body>
 
-<div class="app-container">
-  <div class="app-header">🌱 Eco Lifestyle Coach</div>
+<header>🌍 AI Sustainability Coach</header>
 
-  <div class="tabs">
-    <button class="tab-button active" onclick="switchTab(event, 'chat')">💬 Chat</button>
-    <button class="tab-button" onclick="switchTab(event, 'challenge')">🎯 Challenge</button>
-    <button class="tab-button" onclick="switchTab(event, 'tracker')">📊 Tracker</button>
-    <button class="tab-button" onclick="switchTab(event, 'reminders')">🔔 Reminders</button>
-    <button class="tab-button" onclick="switchTab(event, 'leaderboard')">🏆 Board</button>
+<div class="container">
+
+  <!-- USER -->
+  <div class="card">
+    <h3>👤 Username</h3>
+    <input id="username" placeholder="Enter your name" value="guest">
   </div>
 
-  <!-- Chat Tab -->
-  <div id="chat" class="tab-content active">
-    <div class="chat-messages" id="chatMessages">
-      <div class="message bot">Hello! I am your Eco Coach 🌍<br/>Ask me how to live more sustainably.</div>
-    </div>
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Ask me anything..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-    <input type="text" id="username" placeholder="Your name (optional)" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-top: 10px; width: 100%;">
+  <!-- CHAT -->
+  <div class="card">
+    <h3>💬 Chat with Eco Coach</h3>
+    <div class="chat-box" id="chatBox"></div>
+    <input id="chatInput" placeholder="Ask about sustainable living..." />
+    <button onclick="sendChat()">Send</button>
   </div>
 
-  <!-- Challenge Tab -->
-  <div id="challenge" class="tab-content">
-    <h2>Today's Challenge 🎯</h2>
-    <div id="challengeCard">
-      <button class="challenge-btn" style="width: 100%;" onclick="loadChallenge()">Load Today's Challenge</button>
-    </div>
+  <!-- DAILY CHALLENGE -->
+  <div class="card">
+    <h3>🎯 Daily Challenge</h3>
+    <p id="challengeText">Loading...</p>
+    <button onclick="completeChallenge()">Complete Challenge</button>
   </div>
 
-  <!-- Tracker Tab -->
-  <div id="tracker" class="tab-content">
-    <h2>Your Carbon Tracker 📊</h2>
-    <input type="text" id="trackerUsername" placeholder="Enter your name" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 100%;">
-    <button onclick="loadUserStats()" style="padding: 8px 12px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px;">Load Stats</button>
-    <div id="userStats"></div>
-
-    <h3>Log New Activity</h3>
-    <div class="log-form">
-      <input type="text" id="logUsername" placeholder="Your name" />
-      <input type="text" id="logActivity" placeholder="Activity (e.g., 'Used public transport')" />
-      <input type="number" id="logCarbon" placeholder="Carbon saved (kg)" step="0.1" />
-      <button onclick="logCarbon()">Log Activity</button>
-    </div>
-    <div id="logMessage"></div>
+  <!-- USER STATS -->
+  <div class="card">
+    <h3>📊 Your Stats</h3>
+    <p id="stats">Loading...</p>
+    <button onclick="loadStats()">Refresh Stats</button>
   </div>
 
-  <!-- Reminders Tab -->
-  <div id="reminders" class="tab-content">
-    <h2>🔔 Habit Reminders</h2>
-    <input type="text" id="reminderUsername" placeholder="Enter your name" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 100%;">
-    <button onclick="loadReminders()" style="padding: 8px 12px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px;">Load Reminders</button>
-    <div id="remindersList"></div>
-
-    <h3>Add New Reminder</h3>
-    <div class="log-form">
-      <input type="text" id="newReminderUsername" placeholder="Your name" />
-      <input type="text" id="newHabit" placeholder="Habit (e.g., 'Drink water', 'Take a walk')" />
-      <select id="reminderFrequency" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="hourly">Hourly</option>
-      </select>
-      <button onclick="addNewReminder()">Add Reminder</button>
-    </div>
-    <div id="reminderMessage"></div>
+  <!-- LEADERBOARD -->
+  <div class="card">
+    <h3>🏆 Leaderboard</h3>
+    <ul id="leaderboard"></ul>
+    <button onclick="loadLeaderboard()">Refresh Leaderboard</button>
   </div>
 
-  <!-- Leaderboard Tab -->
-  <div id="leaderboard" class="tab-content">
-    <h2>🏆 Top Eco Warriors</h2>
-    <button onclick="loadLeaderboard()" style="padding: 8px 12px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px;">Refresh</button>
-    <ul class="leaderboard-list" id="leaderboardList">
-      <li class="leaderboard-item"><span>Loading...</span></li>
-    </ul>
+  <!-- REMINDER -->
+  <div class="card">
+    <h3>⏰ Add Habit Reminder</h3>
+    <input id="habit" placeholder="Habit (e.g. Drink less water)" />
+    <input id="frequency" placeholder="Frequency (Daily / Weekly)" />
+    <button onclick="addReminder()">Add Reminder</button>
   </div>
+
 </div>
 
 <script>
-const BASE_URL = "https://ai-chatbot-9vkx.onrender.com"; // Render backend URL
+const BASE_URL = "https://ai-chatbot-9vkx.onrender.com";
+let currentChallenge = null;
 
-function switchTab(event, tabName) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabName).classList.add('active');
-  event.target.classList.add('active');
+// ---------------- CHAT ----------------
+async function sendChat() {
+  const msg = document.getElementById("chatInput").value;
+  const user = document.getElementById("username").value;
+  if (!msg) return;
 
-  if (tabName === 'leaderboard') loadLeaderboard();
-  if (tabName === 'challenge') loadChallenge();
-}
+  const chatBox = document.getElementById("chatBox");
+  chatBox.innerHTML += `<div class="msg-user"><b>You:</b> ${msg}</div>`;
 
-// ------------------- Chat -------------------
-function sendMessage() {
-  const input = document.getElementById('userInput');
-  const username = document.getElementById('username').value || 'guest';
-  const message = input.value.trim();
-  if (!message) return;
-
-  addMessage(message, 'user');
-  input.value = '';
-
-  fetch(`${BASE_URL}/chat`, {
+  const res = await fetch(`${BASE_URL}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, username })
-  })
-  .then(res => res.json())
-  .then(data => {
-    addMessage(data.reply || "No response", 'bot');
-    if (data.carbon_saved > 0) {
-      addMessage(`✨ +${data.carbon_saved} kg CO2 saved!`, 'bot');
-    }
-  })
-  .catch(() => addMessage("Server not responding 😕", 'bot'));
+    body: JSON.stringify({ message: msg, username: user })
+  });
+
+  const data = await res.json();
+  chatBox.innerHTML += `<div class="msg-bot"><b>Bot:</b> ${data.reply}</div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+  document.getElementById("chatInput").value = "";
 }
 
-function addMessage(text, sender) {
-  const chat = document.getElementById('chatMessages');
-  const msgDiv = document.createElement('div');
-  msgDiv.className = `message ${sender}`;
-  msgDiv.innerText = text;
-  chat.appendChild(msgDiv);
-  chat.scrollTop = chat.scrollHeight;
+// ---------------- CHALLENGE ----------------
+async function loadChallenge() {
+  const res = await fetch(`${BASE_URL}/challenge/daily`);
+  currentChallenge = await res.json();
+  document.getElementById("challengeText").innerText =
+    `${currentChallenge.title} — ${currentChallenge.description}`;
 }
 
-// ------------------- Challenges -------------------
-function loadChallenge() {
-  fetch(`${BASE_URL}/challenge/daily`)
-  .then(res => res.json())
-  .then(data => {
-    const card = document.getElementById('challengeCard');
-    card.innerHTML = `
-      <div class="challenge-card">
-        <div class="challenge-title">${data.title}</div>
-        <div class="challenge-desc">${data.description}</div>
-        <div class="challenge-value">💚 ${data.carbon_value} kg CO2 saved</div>
-        <button class="challenge-btn" style="width: 100%;" onclick="completeChallenge('${data.title}', ${data.carbon_value})">Complete Challenge</button>
-      </div>
-    `;
-  }).catch(() => document.getElementById('challengeCard').innerHTML = '<p>Error loading challenge</p>');
-}
+async function completeChallenge() {
+  if (!currentChallenge) return;
+  const user = document.getElementById("username").value;
 
-function completeChallenge(title, carbon) {
-  const username = prompt("Enter your name to log this challenge:");
-  if (!username) return;
-  fetch(`${BASE_URL}/carbon/log`, {
+  await fetch(`${BASE_URL}/carbon/log`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, carbon_saved: carbon, activity: title })
-  }).then(() => { alert(`✨ Challenge completed! You saved ${carbon} kg CO2!`); loadChallenge(); });
+    body: JSON.stringify({
+      username: user,
+      carbon_saved: currentChallenge.carbon_value,
+      activity: currentChallenge.title
+    })
+  });
+
+  alert("✅ Challenge completed!");
+  loadStats();
+  loadLeaderboard();
 }
 
-// ------------------- Leaderboard -------------------
-function loadLeaderboard() {
-  fetch(`${BASE_URL}/leaderboard`)
-  .then(res => res.json())
-  .then(data => {
-    const list = document.getElementById('leaderboardList');
-    if (!data.length) {
-      list.innerHTML = '<li class="leaderboard-item"><span>No entries yet. Start logging!</span></li>';
-      return;
-    }
-    list.innerHTML = data.map((u,i)=>`
-      <li class="leaderboard-item">
-        <span class="leaderboard-rank">#${i+1}</span>
-        <span class="leaderboard-name">${u.username}</span>
-        <span class="leaderboard-score">${u.total_carbon_saved.toFixed(1)} kg</span>
-      </li>
-    `).join('');
+// ---------------- STATS ----------------
+async function loadStats() {
+  const user = document.getElementById("username").value;
+  const res = await fetch(`${BASE_URL}/user/${user}`);
+  const data = await res.json();
+  document.getElementById("stats").innerText =
+    `Total Carbon Saved: ${data.total_carbon_saved} kg | Streak: ${data.streak}`;
+}
+
+// ---------------- LEADERBOARD ----------------
+async function loadLeaderboard() {
+  const res = await fetch(`${BASE_URL}/leaderboard`);
+  const data = await res.json();
+  const list = document.getElementById("leaderboard");
+  list.innerHTML = "";
+  data.forEach(u => {
+    list.innerHTML += `<li>${u.username} — ${u.total_carbon_saved} kg</li>`;
   });
 }
 
-// ------------------- Tracker -------------------
-function loadUserStats() {
-  const username = document.getElementById('trackerUsername').value;
-  if (!username) return alert("Please enter your name");
-  fetch(`${BASE_URL}/user/${username}`)
-  .then(res => res.json())
-  .then(data => {
-    const stats = document.getElementById('userStats');
-    stats.innerHTML = `
-      <div class="stat-box">
-        <div class="stat-label">Total Carbon Saved</div>
-        <div class="stat-value">${Number(data.total_carbon_saved).toFixed(1)} kg</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Current Streak</div>
-        <div class="stat-value">${data.streak} days 🔥</div>
-      </div>
-    `;
-  });
-}
+// ---------------- REMINDER ----------------
+async function addReminder() {
+  const user = document.getElementById("username").value;
+  const habit = document.getElementById("habit").value;
+  const frequency = document.getElementById("frequency").value;
 
-function logCarbon() {
-  const username = document.getElementById('logUsername').value;
-  const activity = document.getElementById('logActivity').value;
-  const carbon = parseFloat(document.getElementById('logCarbon').value);
-  if (!username || !activity || !carbon) return alert("Please fill all fields");
-
-  fetch(`${BASE_URL}/carbon/log`, {
+  await fetch(`${BASE_URL}/reminder/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, carbon_saved: carbon, activity })
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('logMessage').innerHTML = `<p style="color: green;">✅ ${data.message}</p>`;
-    document.getElementById('logUsername').value = '';
-    document.getElementById('logActivity').value = '';
-    document.getElementById('logCarbon').value = '';
+    body: JSON.stringify({ username: user, habit, frequency })
   });
+
+  alert("⏰ Reminder added!");
 }
 
-// ------------------- Reminders -------------------
-function loadReminders() {
-  const username = document.getElementById('reminderUsername').value;
-  if (!username) return alert("Please enter your name");
-  fetch(`${BASE_URL}/reminders/${username}`)
-  .then(res => res.json())
-  .then(data => {
-    const list = document.getElementById('remindersList');
-    if (!data.length) {
-      list.innerHTML = '<p>No reminders yet. Create one below!</p>';
-      return;
-    }
-    list.innerHTML = `<h3>Your Reminders:</h3>` + data.map(r=>`
-      <div class="challenge-card" style="margin-bottom:10px;">
-        <div class="challenge-title">${r.habit}</div>
-        <div class="challenge-desc">Frequency: ${r.frequency}</div>
-        <div style="margin-top:10px;font-size:12px;color:#666;">${r.enabled?'✅ Enabled':'❌ Disabled'}</div>
-      </div>
-    `).join('');
-  });
-}
-
-function addNewReminder() {
-  const username = document.getElementById('newReminderUsername').value;
-  const habit = document.getElementById('newHabit').value;
-  const frequency = document.getElementById('reminderFrequency').value;
-  if (!username || !habit) return alert("Please fill all fields");
-
-  fetch(`${BASE_URL}/reminder/add`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, habit, frequency })
-  }).then(res => res.json())
-    .then(data => {
-      document.getElementById('reminderMessage').innerHTML = `<p style="color: green;">✅ ${data.message}</p>`;
-      document.getElementById('newReminderUsername').value = '';
-      document.getElementById('newHabit').value = '';
-      setTimeout(() => { document.getElementById('reminderUsername').value = username; loadReminders(); }, 500);
-    });
-}
-
-// Load leaderboard on startup
+// ---------------- INIT ----------------
+loadChallenge();
+loadStats();
 loadLeaderboard();
 </script>
+
 </body>
 </html>
