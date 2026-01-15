@@ -4,6 +4,12 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os, random
+from groq import Groq  # Make sure you installed groq: pip install groq
+from dotenv import load_dotenv
+
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 
 app = FastAPI()
 
@@ -49,8 +55,19 @@ challenges = [
 # ---------------- Chat Endpoint ----------------
 @app.post("/chat")
 def chat(req: ChatRequest):
-    # Placeholder for Groq API (replace with actual Groq client)
-    reply_text = f"Echo: {req.message}"
+    try:
+        completion = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "You are an eco-friendly sustainability coach."},
+                {"role": "user", "content": req.message}
+            ],
+            temperature=0.7
+        )
+        reply_text = completion.choices[0].message.content
+    except Exception as e:
+        print("Groq error:", e)
+        reply_text = "🌱 Sorry, I couldn't process that. Try again!"
     return {"reply": reply_text}
 
 # ---------------- Carbon Tracker ----------------
