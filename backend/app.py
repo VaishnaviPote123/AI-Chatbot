@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from groq import Groq
 import os
@@ -30,12 +32,20 @@ app.add_middleware(
 )
 
 # -------------------------------
+# Serve frontend
+# -------------------------------
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("frontend/index.html")
+
+# -------------------------------
 # In-memory database
 # -------------------------------
 users = {}      # username -> {"total": 0, "streak": 0, "completed_challenges": set()}
 reminders = []  # list of {"username":..., "habit":..., "frequency":..., "enabled": True}
 
-# Store daily challenge
 daily_challenge_cache = {"date": None, "challenge": None}
 
 # -------------------------------
@@ -64,13 +74,6 @@ challenges = [
     {"title":"Save Water","description":"Take a short shower","carbon_value":2},
     {"title":"No Plastic","description":"Avoid plastic today","carbon_value":3}
 ]
-
-# -------------------------------
-# Health endpoint
-# -------------------------------
-@app.get("/")
-def home():
-    return {"status": "Eco Coach AI (LLaMA) running 🌱"}
 
 # -------------------------------
 # Chat endpoint using LLaMA via Groq
@@ -118,7 +121,6 @@ def daily_challenge():
 # -------------------------------
 @app.post("/challenge/complete")
 def complete_challenge(username: str):
-    # Ensure user exists
     if username not in users:
         users[username] = {"total": 0, "streak": 0, "completed_challenges": set()}
 
@@ -130,12 +132,9 @@ def complete_challenge(username: str):
         daily_challenge_cache["challenge"] = challenge
 
     challenge_id = challenge["title"]
-
-    # Check if already completed
     if challenge_id in users[username]["completed_challenges"]:
         return {"message": "You already completed today's challenge!", "carbon_saved": 0}
 
-    # Mark as completed
     users[username]["completed_challenges"].add(challenge_id)
     users[username]["total"] += challenge["carbon_value"]
     users[username]["streak"] += 1
